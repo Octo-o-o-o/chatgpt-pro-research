@@ -54,7 +54,7 @@ dsh plugin --profile <profile> add github:Octo-o-o-o/chatgpt-pro-research#<40-ch
 dsh plugin --profile <profile> add chatgpt-pro-research
 ```
 
-npm 上现有 `0.2.x`；本仓库的 `0.3.0` 以 Git/dsh.pub 分发为准。
+npm 上现有 `0.2.x`；本仓库的 `0.3.1` 以 Git/dsh.pub 分发为准。
 
 ### 启用
 
@@ -188,7 +188,7 @@ pro_research(
 | Node.js | 22+ |
 | 浏览器 | 本机 Google Chrome（稳定版） |
 | 平台 | Windows 已验证；macOS/Linux 使用对应的 Chrome 启动路径，未在仓库内声明实测 |
-| 插件版本 | `0.3.0` |
+| 插件版本 | `0.3.1` |
 
 ## 禁用与卸载
 
