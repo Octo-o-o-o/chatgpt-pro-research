@@ -1,0 +1,71 @@
+{
+  "name": "chatgpt-pro-research",
+  "version": "0.3.0",
+  "description": "在 DSH 中用 ChatGPT Pro 网页会话做无人值守多轮调研：自动提问、按成功判据裁决并汇总最终文档；问题、轮次、回执与产物全部落盘，侧边栏可恢复、取消或人工核对。Unattended multi-round research via a real ChatGPT Pro web session, with local records and a DSH sidebar.",
+  "private": false,
+  "type": "module",
+  "main": "lib/index.js",
+  "icon": "./icon.svg",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "resources",
+    "locale/*.json",
+    "icon.svg",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "chatgpt",
+    "research",
+    "browser-automation",
+    "cordis"
+  ],
+  "author": "Octo-o-o-o",
+  "license": "MIT",
+  "homepage": "https://github.com/Octo-o-o-o/chatgpt-pro-research#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Octo-o-o-o/chatgpt-pro-research.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Octo-o-o-o/chatgpt-pro-research/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "dsh": ">=0.2.1-rc.2 <0.3.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-slots"
+      ],
+      "platform": "web"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.5",
+    "@deepseek-ai/dsh-tools": ">=0.2.1-rc.2 <0.3.0",
+    "@deepseek-ai/dsh-llm": ">=0.2.1-rc.2 <0.3.0",
+    "@deepseek-ai/schemastery": "^3.18.1"
+  },
+  "dependencies": {
+    "playwright-core": "^1.64.1"
+  }
+}
