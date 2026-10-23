@@ -11,6 +11,10 @@
 
 > **风险提示**：这是订阅网页自动化，不是官方 API。自动化网页可能违反服务条款、触发风控或导致账号受限；页面改版也会让它失效。请自行评估风险，不要把登录态、Cookie 或凭据写进仓库或日志。
 
+![Pro Research 面板](resources/screenshots/panel.png)
+
+*首次安装后的空状态：侧边栏入口和面板已加载；在会话里用 `/pro-research` 开始。*
+
 ## 它解决什么问题
 
 - 把一个研究问题拆成多轮：提问 → 追问 → 按 `criteria` 裁决 → 汇总，不需要你盯着每一轮。
@@ -140,6 +144,7 @@ pro_research(
 - **会出网**：问题、brief、判据、材料和你选择的附件会发送到 `chatgpt.com`；自动裁决使用你配置的 DSH LLM provider。
 - **本地保存**：Cookie/登录态在 `~/.dsh/pro-research/browser`；记录在项目 `docs/research` 或 `~/.dsh/chatgpt-pro-research`；原始答复在 `~/.dsh/pro-research/raw`。
 - **权限边界**：插件以 DSH 进程权限运行，可以读写上述目录、启动本机 Chrome、通过 DSH 的工具/模型服务工作；它不读取与调研无关的浏览器 profile。
+- **文件管理器**：插件只用固定的 `explorer.exe` / `open` / `xdg-open` 参数打开它自己生成的产物文件/目录，不拼接用户输入，也不执行 shell 命令。
 - **不会**把登录态、Cookie、完整原始答复写进仓库；`rawAnswers` 默认 `local`。
 - **清理**：删除主题目录即可删除该主题；卸载时见下文。不要把 `~/.dsh/pro-research` 提交到任何仓库。
 
@@ -164,6 +169,16 @@ pro_research(
 | 主题卡在 capped/reviewing | `review` 让原会话检查产物，或 `human_check` 人工决定。 |
 | 附件没带上 | 检查 `maxFiles`、`maxTotalMB` 和文件路径；材料里的图片/文件要实际存在。 |
 | 重启 DSH 后轮次丢失 | 已发送但未回执的轮次会停在待人工核对；用 `status` / `resume` 处理，不要自动重发。 |
+
+## 本地验证记录
+
+2026-10-23，DSH `0.2.1-rc.2`，空 `web` profile，从公开 commit `9e3853f` 安装：
+
+- `--dump-config` 显示 `# == chatgpt-pro-research` 组合包层；
+- `GET /chatgpt-pro-research/topics` 返回 `200 {"topics":[]}`；
+- 侧边栏 **Pro Research** 入口和空面板正常加载。
+
+> 这是安装/加载验证，不等于真实 ChatGPT 登录和完整多轮调研的验收；后者需要你自己的账号。
 
 ## 兼容性
 
