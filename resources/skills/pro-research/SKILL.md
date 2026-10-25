@@ -10,7 +10,7 @@ short-description: Bounded, resumable web-Pro research with local records
 
 只在用户明确说「用 Pro 调研 / 让 Pro 看看 / Pro 设计」或同意你的提议时启动。普通问答、需要跑代码验证的任务、不能外发的材料，不要用。
 
-网页通道固定为**单账号、单会话**：两个插件共用本机 Google Chrome 与 `~/.dsh/pro-research/browser`，不并行多账号、不扇出、不合并多份答复；同一主题始终续原会话。
+网页通道固定为**单账号、单会话**：两个插件共用本机 Google Chrome 与 `~/.dsh/pro-research/browser`，不并行多账号、不扇出、不合并多份答复；原会话可用时续用，会话丢失时由宿主生成 `context.md` 显式重建，并在记录里标注，不承诺永久记忆。
 
 ## 启动：先给研究卡，不要直接跑
 
@@ -23,13 +23,13 @@ short-description: Bounded, resumable web-Pro research with local records
 5. 产物路径。
 
 请用户确认，然后调用 `pro_research`：
-`action=start, confirmed=true, title, question, brief, criteria[], materials[], rounds, type`。
+`action=start, confirmed=true, title, question, brief, criteria[], materials[], rounds`。
 
 不要用自己写的摘要替代原始材料；`materials` 是相对当前工作目录的路径，工具会做密钥扫描和清单哈希。
 
 ## 运行期间
 
-发出去就不要再逐轮汇报。只有用户主动问才 `action=status`；卡住时工具会把状态变成 `stalled`，并在 `stall_reason` 里给出 login / upload / ui / timeout / unknown_submission。
+发出去就不要再逐轮汇报。只有用户主动问才 `action=status`；卡住时工具会把状态变成 `stalled`，并在 `stall_reason` 里给出 login / upload / ui / timeout / config / worker / unknown_submission。
 
 - `stalled` 不能自行重发。先把原因和现场告诉用户。
 - `unknown_submission` 必须由用户核对后调用 `action=human_check`（conclusion=submitted / not_submitted / reopen，note 必填）。
@@ -40,12 +40,23 @@ short-description: Bounded, resumable web-Pro research with local records
 
 宿主模型负责裁决，不把 Pro 的话直接当结论：
 
-1. 读原始答复与各轮 `verdict.md`；
+1. 读原始答复与各轮 `verdict.md`（逐条判据表在“## 判据”一节）；
 2. 对照成功判据逐条判断：采纳 / 部分采纳 / 有依据驳回；
 3. 把裁决写进项目文档，保留分歧和未决项；
 4. 只把变化送进下一轮（工具会在同一主题里续轮次），不重复已确认内容。
 
-`final.md` 是机械汇总，不是交付物；真正的方案由宿主按项目规范落盘。
+`final.md` 是运行汇总（自动生成），不是交付物。宿主应在主题目录写 `report.md`：
+
+1. 当前结论与适用条件；
+2. 成功判据逐条：met / partial / unmet / unknown + 对应轮次或答复证据；
+3. 未决问题；
+4. 产物与轮次入口。
+
+面板优先展示 `report.md`；没有时明确显示“宿主尚未整理交付稿”。
+
+交付稿首行记录实际覆盖范围，例如 `<!-- dsh-pro-report: {"generation":1,"throughRound":2} -->` 表示第 1 版、覆盖至主题第 2 轮。先读取对应回答和裁决，再更新正文与文件头；轮次使用主题的全局序号。没有文件头的旧稿显示“覆盖范围未确认”；续轮或重做后显示“交付稿待更新”，旧稿仍可阅读。不要只更新文件头来冒充已整合新证据。
+
+自动裁决失败时主题停在 `reviewing`（`review_from=answered`），答复和产物都保留：按成功判据选择 `accept` / `continue` / `regenerate`，或修好 `judgeProvider` / `judgeModel` 后 `resume` 重试。不要把这种情况说成运行失败。
 
 ## 追问
 
@@ -54,6 +65,10 @@ short-description: Bounded, resumable web-Pro research with local records
 `pro_research(action="continue", topic_id=..., brief=..., confirmed=true)`
 
 只送变化：上一轮裁决 + 新 brief + 新增/修改的材料。原会话丢了由宿主生成 `context.md` 重开；不要新建平行主题。已达轮次上限的主题，`continue` 会显式加一并留下记录；先向用户说明这是加轮。
+
+整版不满意用 `regenerate`（保留历史、开新版本），`note` 写不满意点，可附 `materials=[...]`（相对主题项目根目录）补充新材料。
+
+终态主题（完成/取消/到顶/失败/卡住）确认后可 `delete`：删除主题目录、原始答复与面板记录，不可恢复，先向用户说明。
 
 ## 边界
 
