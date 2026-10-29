@@ -1,7 +1,7 @@
 {
   "name": "chatgpt-pro-research",
-  "version": "0.3.3",
-  "description": "在 DSH 中用 ChatGPT Pro 网页会话做无人值守多轮调研：自动提问、按成功判据裁决并汇总最终文档；问题、轮次、回执与产物全部落盘，侧边栏可恢复、取消或人工核对。Unattended multi-round research via a real ChatGPT Pro web session, with local records and a DSH sidebar.",
+  "version": "0.3.4",
+  "description": "DSH 插件：把 ChatGPT Pro 网页调研变成可恢复的多轮任务，按判据裁决，保留原答复并交付本地报告。Resumable ChatGPT Pro research with criterion-based judging and local reports.",
   "private": false,
   "type": "module",
   "main": "lib/index.js",

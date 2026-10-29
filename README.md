@@ -22,6 +22,14 @@
 - 侧边栏「Pro Research」列出主题、轮次、状态与记录路径；卡住时能直接处理。
 - 适合文献/竞品/方案/技术选型调研；不适合需要官方 API 合规保证、需要多账号并行、或必须逐字引用的场景。
 
+
+## 0.3.4：可靠裁决与 local 交付
+
+- 裁决为推理与 JSON 预留共同的输出预算；只有正常完成且判据满足才接受。
+- `read_round` 读取真实答复/裁决；`read_report` 返回旧稿及 revision；`write_report` 写入已授权主题的固定交付文件。
+- 支持 `project` / `local`，不要求放宽宿主文件权限；写稿经过 DSH 工具权限检查，带版本与轮次覆盖校验及并发覆盖保护。
+- 原答复、运行汇总与宿主整理的交付稿分别保留。设计图片与 HTML 必须另做视觉、交互验收。
+
 ## 前置条件
 
 - DSH `>= 0.2.1-rc.3 < 0.3.0`（本版本实测 `0.2.1-rc.3`）。
@@ -38,9 +46,9 @@
 dsh plugin --profile <profile> add github:Octo-o-o-o/chatgpt-pro-research#<40-char-commit>
 ```
 
-`<40-char-commit>` 用已发布的 `v0.3.3` tag 对应完整 SHA；`<profile>` 换成你的 profile（例如 `desktop`、`web`）。当前 Git 版本为 `0.3.3`，包含以下恢复与预览修复。
+`<40-char-commit>` 用已发布的 `v0.3.4` tag 对应完整 SHA；`<profile>` 换成你的 profile（例如 `desktop`、`web`）。当前 Git 版本为 `0.3.4`，包含以下恢复与预览修复。
 
-`0.3.3` 收紧网页完成判定：只接受当前回答的完成控件，文本停顿、代码复制按钮不算结束；上一轮未结束时不发送追问。发送前失败保留浏览器现场，可恢复重试当前轮；点击发送后结果未知仍须核对。模型选择必须核验，实际标签写入回执；研究卡可显式传 `store="local"`，以工具返回的 `store` / `path` 为准。
+共享传输层收紧网页完成判定：只接受当前回答的完成控件，文本停顿、代码复制按钮不算结束；上一轮未结束时不发送追问。发送前失败保留浏览器现场，可恢复重试当前轮；点击发送后结果未知仍须核对。模型选择必须核验，实际标签写入回执；研究卡可显式传 `store="local"`，以工具返回的 `store` / `path` 为准。
 
 ### 从 dsh.pub（收录后推荐）
 
@@ -48,15 +56,15 @@ dsh plugin --profile <profile> add github:Octo-o-o-o/chatgpt-pro-research#<40-ch
 npx dshpub add Octo-o-o-o/chatgpt-pro-research
 ```
 
-dsh.pub 会把仓库固定到一个公开 commit 再安装。当前市场条目仍指 `0.3.0`，待上游审核；收录后再把主入口切过来。
+dsh.pub 会把仓库固定到一个公开 commit 再安装。市场收录与 Git/npm 发版独立，安装前请核对市场显示的版本与 commit。
 
-### 从 npm（暂缓更新）
+### 从 npm
 
 ```bash
 dsh plugin --profile <profile> add chatgpt-pro-research
 ```
 
-`0.3.3` 尚未发布到 npm；现有 `0.2.x` 不包含本版改进，请优先使用上面的 Git 安装。
+安装时建议指定版本 `@0.3.4`，便于复现；`desktop` 与 `web` profile 均受支持。
 
 ### 启用
 
@@ -146,7 +154,7 @@ pro_research(
 ```
 
 - `final.md` 是机械汇总；面板会把它标成「运行汇总（自动生成）」。
-- `report.md` 由宿主写：结论与适用条件、判据逐条（met/partial/unmet/unknown + 轮次证据）、未决问题、产物入口。面板优先展示 `report.md`。
+- `report.md` 由宿主整理并通过插件的 `write_report` 写入：结论与适用条件、判据逐条（met/partial/unmet/unknown + 轮次证据）、未决问题、产物入口。面板优先展示 `report.md`。
 - 没有 `report.md` 时，面板明确显示“宿主尚未整理交付稿”，不会把 `final.md` 当成交付稿。
 
 - `store=local`：`~/.dsh/chatgpt-pro-research/projects/<project>-<hash>/<slug>/`。
@@ -163,7 +171,7 @@ pro_research(
 3. `action="login"` 能打开 Chrome，并能登录 ChatGPT。
 4. 跑一个 1 轮的小主题，确认 `docs/research/<slug>/` 下出现 `topic.json`、轮次目录和 `final.md`。
 5. 刷新侧边栏，确认主题、状态、轮次和记录路径都在。
-6. 在主题目录写一个 `report.md`，刷新后确认面板显示「宿主交付稿」，而不是把 `final.md` 当交付稿。
+6. 用 `read_round` / `read_report` / `write_report` 整理 `report.md`，刷新后确认面板显示「宿主交付稿」和覆盖范围。
 7. 故意把 `judgeProvider` 指向不可用模型跑一轮，确认主题停在「待判断」（`review_from=answered`），答复仍在；修好后 `resume` 能完成。
 
 ## 安全与隐私
@@ -210,9 +218,11 @@ pro_research(
 
 > 这是安装/加载验证，不等于真实 ChatGPT 登录和完整多轮调研的验收；后者需要你自己的账号。
 
-## 0.3.3 验证边界
+## 0.3.4 验证边界
 
-本版通过单元、Chrome 本地网页、双插件流程与恢复回归。首次真实登录成功路径、真实自动裁决非 JSON 故障的根因、付费生图 API 和 macOS/Linux 端到端尚未全部验证。裁决异常保留答复与结束原因，可重试或人工核对。宿主只可写项目时，应在启动卡中选择获授权的 `store=project`；已有 local 主题不隐式迁移。
+本版将裁决输出预算提高到 8,192 token，避免推理耗尽预算后截断 JSON；异常仍保留原答复与结束原因，不会误判成功。新增固定主题范围的交付工具，支持宿主在“工作区内修改”模式下整理 local 交付稿。首次人工登录、付费生图 API、macOS/Linux 真实端到端仍需各环境独立验收。
+
+2026-10-29 在 Windows、DSH `0.2.1-rc.3`、真实 ChatGPT Pro 与 DeepSeek-V4-Pro 裁决模型上完成单轮研究：发送前超时后恢复原主题，收到真实答复，自动裁决 `accepted`，再通过插件 `write_report` 写入并回读 local `report.md`。未手动 accept，也未放宽宿主权限。详情见 [0.3.4 验证记录](https://github.com/Octo-o-o-o/dsh-pro/blob/main/docs/validation/release-0.3.4-2026-10-29.md)。
 
 ## 兼容性
 
@@ -222,7 +232,7 @@ pro_research(
 | Node.js | 22+ |
 | 浏览器 | 本机 Google Chrome（稳定版） |
 | 平台 | Windows 已验证；macOS/Linux 使用对应的 Chrome 启动路径，未在仓库内声明实测 |
-| 插件版本 | `0.3.3` |
+| 插件版本 | `0.3.4` |
 
 ## 禁用与卸载
 

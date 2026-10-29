@@ -27,7 +27,7 @@ short-description: Bounded, resumable web-Pro research with local records
 
 `store` 必须与研究卡一致（`local` 或 `project`）；读取工具返回的 `store` 和 `path` 核对实际位置，不能只在文字里承诺本机保存。已有主题继续使用原位置，不隐式迁移。
 
-启动前核对宿主能否写入交付稿所在目录。宿主仅可写当前项目且用户允许项目留存时选 `project`；local 目录在权限范围外时先说明交付稿权限缺口，不绕过权限或改写保存位置。
+local 与 project 均通过插件的 `read_round`、`read_report`、`write_report` 整理交付稿。无需宿主通用文件工具访问 local 目录；这些动作仍经过 DSH 工具权限检查。不要修改宿主权限、改写记录位置或使用外部脚本代写。
 
 不要用自己写的摘要替代原始材料；`materials` 是相对当前工作目录的路径，工具会做密钥扫描和清单哈希。
 
@@ -35,8 +35,8 @@ short-description: Bounded, resumable web-Pro research with local records
 
 发出去就不要再逐轮汇报。只有用户主动问才 `action=status`；卡住时工具会把状态变成 `stalled`，并在 `stall_reason` 里给出 login / upload / ui / timeout / config / worker / unknown_submission。
 
-- `stalled` 不能自行重发。先把原因和现场告诉用户。
-- `submissionState=not_sent` 表示驱动确认在点击发送前停止；修复原因后用 `resume` 重试当前轮，不用人工猜测，也不新建主题。其他未确认提交仍走 `human_check`。
+- `stalled` 先读取 `status` 的 `last_round`，区分发送前失败、已发送和提交不明，不凭错误文案猜测。
+- `last_round.submissionState=not_sent` 表示驱动确认在点击发送前停止；任务已获授权且原因已解决或仅为临时导航超时时，可以 `resume` 重试原轮一次，不新建主题。仍失败就报告现场，不循环重试。其他未确认提交仍走 `human_check`。
 - `unknown_submission` 必须由用户核对后调用 `action=human_check`（conclusion=submitted / not_submitted / reopen，note 必填）。
 - 登录失效：请用户运行 `action=login`，完成后再 `action=resume`。
 - 账号、ToS、页面改版风险随任务说明；不要承诺一定能跑完。
@@ -50,7 +50,7 @@ short-description: Bounded, resumable web-Pro research with local records
 3. 把裁决写进项目文档，保留分歧和未决项；
 4. 只把变化送进下一轮（工具会在同一主题里续轮次），不重复已确认内容。
 
-`final.md` 是运行汇总（自动生成），不是交付物。宿主应在主题目录写 `report.md`：
+`final.md` 是运行汇总（自动生成），不是交付物。宿主应整理 `report.md`：
 
 1. 当前结论与适用条件；
 2. 成功判据逐条：met / partial / unmet / unknown + 对应轮次或答复证据；
@@ -59,7 +59,9 @@ short-description: Bounded, resumable web-Pro research with local records
 
 面板优先展示 `report.md`；没有时明确显示“宿主尚未整理交付稿”。
 
-交付稿首行记录实际覆盖范围，例如 `<!-- dsh-pro-report: {"generation":1,"throughRound":2} -->` 表示第 1 版、覆盖至主题第 2 轮。先读取对应回答和裁决，再更新正文与文件头；轮次使用主题的全局序号。没有文件头的旧稿显示“覆盖范围未确认”；续轮或重做后显示“交付稿待更新”，旧稿仍可阅读。不要只更新文件头来冒充已整合新证据。
+先用 `status` 获取版本/轮次，再用 `read_round(topic_id, round)` 核对对应回答和裁决，`read_report(topic_id)` 获取旧稿与 `report.revision`。完成正文后调用 `write_report(topic_id, markdown, generation, through_round, expected_revision, confirmed=true)`；没有旧稿时 `expected_revision=""`。用户已授权当前任务与交付时无需重复确认。插件只写该主题的 `report.md`，自动添加真实覆盖范围文件头；拒绝跨项目写入、运行中的主题、过时轮次及旧 revision。正文不要自行添加文件头。发生冲突时重新读取证据和旧稿后整合，不能盲目覆盖。
+
+没有文件头的旧稿显示“覆盖范围未确认”；续轮或重做后显示“交付稿待更新”，旧稿仍可阅读。不要只更新覆盖范围来冒充已整合新证据。工具权限被拒绝时尊重拒绝并向用户说明，不改用其他通道写入。
 
 自动裁决失败时主题停在 `reviewing`（`review_from=answered`），答复和产物都保留：按成功判据选择 `accept` / `continue` / `regenerate`，或修好 `judgeProvider` / `judgeModel` 后 `resume` 重试。不要把这种情况说成运行失败。
 
