@@ -23,7 +23,11 @@ short-description: Bounded, resumable web-Pro research with local records
 5. 产物路径。
 
 请用户确认，然后调用 `pro_research`：
-`action=start, confirmed=true, title, question, brief, criteria[], materials[], rounds`。
+`action=start, confirmed=true, title, question, brief, criteria[], materials[], rounds, store`。
+
+`store` 必须与研究卡一致（`local` 或 `project`）；读取工具返回的 `store` 和 `path` 核对实际位置，不能只在文字里承诺本机保存。已有主题继续使用原位置，不隐式迁移。
+
+启动前核对宿主能否写入交付稿所在目录。宿主仅可写当前项目且用户允许项目留存时选 `project`；local 目录在权限范围外时先说明交付稿权限缺口，不绕过权限或改写保存位置。
 
 不要用自己写的摘要替代原始材料；`materials` 是相对当前工作目录的路径，工具会做密钥扫描和清单哈希。
 
@@ -32,6 +36,7 @@ short-description: Bounded, resumable web-Pro research with local records
 发出去就不要再逐轮汇报。只有用户主动问才 `action=status`；卡住时工具会把状态变成 `stalled`，并在 `stall_reason` 里给出 login / upload / ui / timeout / config / worker / unknown_submission。
 
 - `stalled` 不能自行重发。先把原因和现场告诉用户。
+- `submissionState=not_sent` 表示驱动确认在点击发送前停止；修复原因后用 `resume` 重试当前轮，不用人工猜测，也不新建主题。其他未确认提交仍走 `human_check`。
 - `unknown_submission` 必须由用户核对后调用 `action=human_check`（conclusion=submitted / not_submitted / reopen，note 必填）。
 - 登录失效：请用户运行 `action=login`，完成后再 `action=resume`。
 - 账号、ToS、页面改版风险随任务说明；不要承诺一定能跑完。
@@ -75,4 +80,5 @@ short-description: Bounded, resumable web-Pro research with local records
 - 不自动 push，不把 GitHub 当唯一材料通道；已提交内容可给提交号 + 路径，让 Pro 自己决定要不要读。
 - 密钥、凭据、`.env` 不进材料；扫描命中就换材料，不要绕过。
 - 不重发提交状态未知的轮次；不把失败说成完成。
+- 不能仅凭耗时短断言“没有读附件”；核对实际答复、上传回执和完成信号。只收到开场白时，应先排查是否提前截取了仍在生成的回答。
 - 同一主题只有一份记录；换 `store` 需要显式迁移，不要两处各写一半。

@@ -38,7 +38,9 @@
 dsh plugin --profile <profile> add github:Octo-o-o-o/chatgpt-pro-research#<40-char-commit>
 ```
 
-`<40-char-commit>` 用 `v0.3.2` Release 对应的完整 SHA；`<profile>` 换成你的 profile（例如 `desktop`、`web`）。本 README 对应 `0.3.2`，安装后请核对插件版本。
+`<40-char-commit>` 用已发布的 `v0.3.3` tag 对应完整 SHA；`<profile>` 换成你的 profile（例如 `desktop`、`web`）。当前 Git 版本为 `0.3.3`，包含以下恢复与预览修复。
+
+`0.3.3` 收紧网页完成判定：只接受当前回答的完成控件，文本停顿、代码复制按钮不算结束；上一轮未结束时不发送追问。发送前失败保留浏览器现场，可恢复重试当前轮；点击发送后结果未知仍须核对。模型选择必须核验，实际标签写入回执；研究卡可显式传 `store="local"`，以工具返回的 `store` / `path` 为准。
 
 ### 从 dsh.pub（收录后推荐）
 
@@ -54,7 +56,7 @@ dsh.pub 会把仓库固定到一个公开 commit 再安装。当前市场条目�
 dsh plugin --profile <profile> add chatgpt-pro-research
 ```
 
-`0.3.2` 尚未发布到 npm；现有 `0.2.x` 不包含本版改进，请优先使用上面的 Git 安装。
+`0.3.3` 尚未发布到 npm；现有 `0.2.x` 不包含本版改进，请优先使用上面的 Git 安装。
 
 ### 启用
 
@@ -208,6 +210,10 @@ pro_research(
 
 > 这是安装/加载验证，不等于真实 ChatGPT 登录和完整多轮调研的验收；后者需要你自己的账号。
 
+## 0.3.3 验证边界
+
+本版通过单元、Chrome 本地网页、双插件流程与恢复回归。首次真实登录成功路径、真实自动裁决非 JSON 故障的根因、付费生图 API 和 macOS/Linux 端到端尚未全部验证。裁决异常保留答复与结束原因，可重试或人工核对。宿主只可写项目时，应在启动卡中选择获授权的 `store=project`；已有 local 主题不隐式迁移。
+
 ## 兼容性
 
 | 项 | 值 |
@@ -216,7 +222,7 @@ pro_research(
 | Node.js | 22+ |
 | 浏览器 | 本机 Google Chrome（稳定版） |
 | 平台 | Windows 已验证；macOS/Linux 使用对应的 Chrome 启动路径，未在仓库内声明实测 |
-| 插件版本 | `0.3.2` |
+| 插件版本 | `0.3.3` |
 
 ## 禁用与卸载
 
