@@ -1,16 +1,18 @@
 ---
 name: pro-research
-description: 用 ChatGPT Pro 网页会话做无人值守的多轮调研或设计；只在用户明确要求 Pro 调研/设计、或同意你的提议时使用。
+description: 用 ChatGPT 网页会话做无人值守的多轮调研或设计；只在用户明确要求 ChatGPT 调研/设计、或同意你的提议时使用。
 argument-hint: <目标> [--rounds N]
 display-name: Pro Research
-short-description: Bounded, resumable web-Pro research with local records
+short-description: Bounded, resumable ChatGPT web research with local records
 ---
 
 # Pro 调研
 
-只在用户明确说「用 Pro 调研 / 让 Pro 看看 / Pro 设计」或同意你的提议时启动。普通问答、需要跑代码验证的任务、不能外发的材料，不要用。
+只在用户明确说「用 ChatGPT 调研 / 用 Pro 调研 / 让 ChatGPT 看看」或同意你的提议时启动。普通问答、需要跑代码验证的任务、不能外发的材料，不要用。
 
 网页通道固定为**单账号、单会话**：两个插件共用本机 Google Chrome 与 `~/.dsh/pro-research/browser`，不并行多账号、不扇出、不合并多份答复；原会话可用时续用，会话丢失时由宿主生成 `context.md` 显式重建，并在记录里标注，不承诺永久记忆。
+
+模型默认 `prefer-pro`：优先使用可用 Pro，没有才沿用网页当前模型；禁用、锁定和升级入口不算可用 Pro。显式 `auto` 保留当前选择，指定其他模型仍须核验。旧设置或旧主题保留原模型；需要默认策略时提示设为 `prefer-pro` 后新建主题。
 
 ## 启动：先给研究卡，不要直接跑
 
@@ -19,7 +21,7 @@ short-description: Bounded, resumable web-Pro research with local records
 1. 主题与一句话研究问题；
 2. **成功判据**（可判定的句子；自动裁决和提前停止都靠它）；
 3. 准备发送的材料（路径 + 文件数 + 是否含敏感项）与 brief 要点；
-4. 通道（ChatGPT Pro 网页）、轮次上限（默认 3）、记录位置（project / local）；
+4. 通道（ChatGPT 网页）、模型（默认 prefer-pro）、轮次上限（默认 3）、记录位置（project / local）；
 5. 产物路径。
 
 请用户确认，然后调用 `pro_research`：

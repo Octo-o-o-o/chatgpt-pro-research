@@ -1,7 +1,7 @@
 {
   "name": "chatgpt-pro-research",
-  "version": "0.3.5",
-  "description": "DSH 插件：把 ChatGPT Pro 网页调研变成可恢复的多轮任务，按判据裁决，保留原答复并交付本地报告。Resumable ChatGPT Pro research with criterion-based judging and local reports.",
+  "version": "0.3.6",
+  "description": "DSH 插件：优先 Pro、兼容可用网页模型的可恢复多轮调研，按判据裁决，保留原答复并交付本地报告。Resumable ChatGPT web research with Pro preference, criterion-based judging and local reports.",
   "private": false,
   "type": "module",
   "main": "lib/index.js",
